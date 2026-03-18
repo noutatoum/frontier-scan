@@ -1,4 +1,5 @@
 import streamlit as st
+import random  # <-- LA CORRECTION EST ICI
 
 # --- 1. CONFIGURATION ---
 st.set_page_config(page_title="SCAN FRONTIÈRE v1.0", page_icon="🛂", layout="centered")
@@ -9,7 +10,6 @@ st.markdown("""
     .stApp { background-color: #f0f2f5; }
     h1 { color: #1877f2; text-align: center; font-family: 'Helvetica Neue', sans-serif; font-weight: 800; }
     
-    /* Style des boutons de réponse */
     div.stButton > button {
         background-color: white; color: #1877f2; border: 2px solid #1877f2;
         border-radius: 15px; height: 3.5rem; font-weight: bold; font-size: 1.1rem;
@@ -17,7 +17,6 @@ st.markdown("""
     }
     div.stButton > button:hover { background-color: #1877f2; color: white; transform: translateY(-3px); box-shadow: 0 8px 15px rgba(24,119,242,0.2); }
 
-    /* La Carte de Résultat Finale */
     .id-card {
         background: white; border-radius: 25px; padding: 30px;
         box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-top: 12px solid #1877f2;
@@ -50,14 +49,11 @@ QUESTIONS = [
 st.markdown("<h1>🛂 SCAN FRONTIÈRE v1.0</h1>", unsafe_allow_html=True)
 
 if st.session_state.step < len(QUESTIONS):
-    # Barre de progression
     st.progress(st.session_state.step / len(QUESTIONS))
-    
     q_text, options = QUESTIONS[st.session_state.step]
     st.markdown(f"### PROTOCOLE {st.session_state.step + 1}/10")
     st.subheader(q_text)
     
-    # Affichage des boutons
     for text, category in options:
         if st.button(text):
             st.session_state.scores[category] += 1
@@ -65,10 +61,7 @@ if st.session_state.step < len(QUESTIONS):
             st.rerun()
 
 else:
-    # CALCUL DU GAGNANT
     gagnant = max(st.session_state.scores, key=st.session_state.scores.get)
-    
-    # FICHE FINALE
     st.balloons()
     st.markdown(f"""
         <div class="id-card">
@@ -97,11 +90,11 @@ else:
                 </div>
             </div>
             <p class="label">Note de l'IA</p>
-            <p class="value" style="font-style: italic;">Sujet identifié avec une précision de 94.2%. Aucun antécédent majeur.</p>
+            <p class="value" style="font-style: italic;">Sujet identifié avec précision. Aucune menace immédiate.</p>
         </div>
     """, unsafe_allow_html=True)
     
-    if st.button("RESCANNER UN PASSAGER"):
+    if st.button("RESCANNER"):
         st.session_state.step = 0
         st.session_state.scores = {k: 0 for k in st.session_state.scores}
         st.rerun()
