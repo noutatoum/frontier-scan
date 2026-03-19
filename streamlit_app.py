@@ -1,7 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="FRONTIER SCAN v1.0", layout="centered")
+st.set_page_config(page_title="FRONTIER SCAN v1.1", layout="centered")
 
 frontier_html = """
 <!DOCTYPE html>
@@ -200,7 +200,6 @@ frontier_html = """
     </style>
 </head>
 <body>
-
     <div id="app-container">
         <div class="header-title">⚡ FRONTIER SCAN ⚡</div>
 
@@ -208,9 +207,7 @@ frontier_html = """
             <div class="progress-container">
                 <div id="p-bar" class="progress-bar"></div>
             </div>
-            <h3 id="q-text" style="color: #1c1e21; font-size: 1.4rem; margin-bottom: 25px;">
-                Initialisation...
-            </h3>
+            <h3 id="q-text" style="color: #1c1e21; font-size: 1.4rem; margin-bottom: 25px;">Initialisation...</h3>
             <div id="options-zone"></div>
         </div>
 
@@ -323,96 +320,95 @@ frontier_html = """
             }
         };
 
-        // main = score principal, extra = petits scores secondaires
         const QS = [
             {
                 q: "Motif principal de passage ?",
                 opt: [
-                    ["Vacances / Tourisme", { main: "Touriste", extra: ["Artiste"] }],
-                    ["Mission Étatique", { main: "Agent", extra: ["Chercheur"] }],
-                    ["Commerce opaque", { main: "Trafiquant", extra: ["Hacker"] }],
-                    ["Asile politique", { main: "Exile", extra: ["Touriste"] }]
+                    ["Vacances / Tourisme", { main: "Touriste", extra: [] }],
+                    ["Mission étatique", { main: "Agent", extra: ["Chercheur"] }],
+                    ["Transaction obscure", { main: "Trafiquant", extra: ["Hacker"] }],
+                    ["Asile politique", { main: "Exile", extra: [] }]
                 ]
             },
             {
                 q: "Contenu des bagages ?",
                 opt: [
-                    ["Effets personnels", { main: "Touriste", extra: ["Exile"] }],
-                    ["Unités centrales chiffrées", { main: "Hacker", extra: ["Chercheur"] }],
+                    ["Effets personnels", { main: "Touriste", extra: [] }],
+                    ["Ordinateurs chiffrés", { main: "Hacker", extra: ["Chercheur"] }],
                     ["Spécimen végétal inconnu", { main: "Ananas", extra: ["Chercheur"] }],
-                    ["Toiles et pinceaux", { main: "Artiste", extra: ["Touriste"] }]
+                    ["Toiles et pinceaux", { main: "Artiste", extra: [] }]
                 ]
             },
             {
                 q: "Profession déclarée ?",
                 opt: [
-                    ["Étudiant / Salarié", { main: "Touriste", extra: ["Chercheur"] }],
-                    ["Négociant indépendant", { main: "Trafiquant", extra: ["Hacker"] }],
-                    ["Artiste indépendant", { main: "Artiste", extra: ["Touriste"] }],
-                    ["Scientifique / Biologiste", { main: "Chercheur", extra: ["Agent"] }]
+                    ["Employé / étudiant", { main: "Touriste", extra: [] }],
+                    ["Intermédiaire discret", { main: "Trafiquant", extra: ["Hacker"] }],
+                    ["Artiste indépendant", { main: "Artiste", extra: [] }],
+                    ["Scientifique / biologiste", { main: "Chercheur", extra: ["Agent"] }]
                 ]
             },
             {
                 q: "Réaction face au scanner ?",
                 opt: [
                     ["Calme absolu", { main: "Agent", extra: ["Touriste"] }],
-                    ["Signes de stress intense", { main: "Trafiquant", extra: ["Exile"] }],
-                    ["Attitude froide et fermée", { main: "Hacker", extra: ["Agent"] }],
+                    ["Stress extrême", { main: "Trafiquant", extra: ["Exile"] }],
+                    ["Attitude froide et calculée", { main: "Hacker", extra: [] }],
                     ["Confusion totale", { main: "Ananas", extra: ["Exile"] }]
                 ]
             },
             {
                 q: "Type de document présenté ?",
                 opt: [
-                    ["Passeport biométrique", { main: "Touriste", extra: ["Agent"] }],
-                    ["Passeport diplomatique", { main: "Agent", extra: ["Chercheur"] }],
-                    ["Document déchiré / incomplet", { main: "Exile", extra: ["Trafiquant"] }],
-                    ["Faux document détecté", { main: "Trafiquant", extra: ["Hacker"] }]
+                    ["Passeport biométrique valide", { main: "Touriste", extra: [] }],
+                    ["Passeport diplomatique", { main: "Agent", extra: [] }],
+                    ["Document incomplet", { main: "Exile", extra: [] }],
+                    ["Faux document", { main: "Trafiquant", extra: ["Hacker"] }]
                 ]
             },
             {
-                q: "Équipements électroniques ?",
+                q: "Équipement électronique détecté ?",
                 opt: [
-                    ["Smartphone standard", { main: "Touriste", extra: ["Artiste"] }],
-                    ["Équipement médical pro", { main: "Chercheur", extra: ["Agent"] }],
-                    ["Matériel d'espionnage", { main: "Hacker", extra: ["Agent"] }],
-                    ["Appareil photo pro", { main: "Artiste", extra: ["Touriste"] }]
+                    ["Téléphone standard", { main: "Touriste", extra: [] }],
+                    ["Capteurs / matériel labo", { main: "Chercheur", extra: ["Agent"] }],
+                    ["Matériel d'intrusion", { main: "Hacker", extra: [] }],
+                    ["Matériel photo / création", { main: "Artiste", extra: [] }]
                 ]
             },
             {
-                q: "Ressources financières ?",
+                q: "Situation financière ?",
                 opt: [
-                    ["Salaire mensuel fixe", { main: "Touriste", extra: ["Artiste"] }],
-                    ["Fonds non traçables", { main: "Hacker", extra: ["Trafiquant"] }],
-                    ["Absence de ressources", { main: "Exile", extra: ["Touriste"] }],
-                    ["Financement scientifique déclaré", { main: "Chercheur", extra: ["Agent"] }]
+                    ["Revenus simples et traçables", { main: "Touriste", extra: [] }],
+                    ["Fonds opaques", { main: "Hacker", extra: ["Trafiquant"] }],
+                    ["Aucune ressource stable", { main: "Exile", extra: [] }],
+                    ["Budget de mission scientifique", { main: "Chercheur", extra: ["Agent"] }]
                 ]
             },
             {
                 q: "Destination du séjour ?",
                 opt: [
-                    ["Hôtel / Location", { main: "Touriste", extra: ["Artiste"] }],
-                    ["Ambassade / Consulat", { main: "Agent", extra: ["Chercheur"] }],
-                    ["Entrepôt privé", { main: "Trafiquant", extra: ["Hacker"] }],
-                    ["Centre de recherche", { main: "Chercheur", extra: ["Agent"] }]
+                    ["Hôtel ou location", { main: "Touriste", extra: [] }],
+                    ["Ambassade / consulat", { main: "Agent", extra: [] }],
+                    ["Entrepôt privé", { main: "Trafiquant", extra: [] }],
+                    ["Laboratoire / centre de recherche", { main: "Chercheur", extra: [] }]
                 ]
             },
             {
                 q: "Durée prévue du séjour ?",
                 opt: [
-                    ["1 à 2 semaines", { main: "Touriste", extra: ["Artiste"] }],
-                    ["Durée indéfinie", { main: "Exile", extra: ["Trafiquant"] }],
-                    ["Transit 48 heures", { main: "Agent", extra: ["Touriste"] }],
-                    ["Mission expérimentale courte", { main: "Chercheur", extra: ["Ananas"] }]
+                    ["1 à 2 semaines", { main: "Touriste", extra: [] }],
+                    ["Durée indéfinie", { main: "Exile", extra: [] }],
+                    ["Transit rapide", { main: "Agent", extra: [] }],
+                    ["Résidence pour création", { main: "Artiste", extra: [] }]
                 ]
             },
             {
-                q: "Provenance géographique ?",
+                q: "Origine détectée ?",
                 opt: [
-                    ["Zone sécurisée", { main: "Touriste", extra: ["Agent"] }],
-                    ["Zone de conflit armé", { main: "Exile", extra: ["Trafiquant"] }],
-                    ["Pays sous embargo", { main: "Hacker", extra: ["Trafiquant"] }],
-                    ["Origine non répertoriée", { main: "Ananas", extra: ["Chercheur"] }]
+                    ["Zone touristique classique", { main: "Touriste", extra: [] }],
+                    ["Zone de conflit", { main: "Exile", extra: ["Trafiquant"] }],
+                    ["Zone à forte activité cyber", { main: "Hacker", extra: [] }],
+                    ["Zone d'expédition scientifique", { main: "Chercheur", extra: [] }]
                 ]
             }
         ];
@@ -439,19 +435,17 @@ frontier_html = """
         }
 
         function addScore(choice) {
-            // Score principal
-            sc[choice.main] += 10;
+            sc[choice.main] += 14;
 
-            // Scores secondaires pour éviter les résultats trop répétitifs
             if (choice.extra && choice.extra.length) {
                 choice.extra.forEach(name => {
-                    sc[name] += 4;
+                    sc[name] += 5;
                 });
             }
 
-            // Petit bruit aléatoire léger
+            // Petit bruit aléatoire beaucoup plus faible
             Object.keys(sc).forEach(name => {
-                sc[name] += Math.random() * 0.8;
+                sc[name] += Math.random() * 0.25;
             });
         }
 
@@ -482,14 +476,26 @@ frontier_html = """
             }
         }
 
+        function weightedChoice(candidates) {
+            const total = candidates.reduce((sum, item) => sum + item.score, 0);
+            let rand = Math.random() * total;
+
+            for (const item of candidates) {
+                rand -= item.score;
+                if (rand <= 0) return item.name;
+            }
+            return candidates[0].name;
+        }
+
         function getWinner() {
             const maxScore = Math.max(...Object.values(sc));
 
-            // Garde les profils proches du meilleur score
-            const finalists = Object.keys(sc).filter(name => sc[name] >= maxScore - 4);
+            // On garde uniquement les profils vraiment proches du top
+            const finalists = Object.keys(sc)
+                .filter(name => sc[name] >= maxScore - 3)
+                .map(name => ({ name, score: sc[name] }));
 
-            // Choix aléatoire parmi les meilleurs
-            return finalists[Math.floor(Math.random() * finalists.length)];
+            return weightedChoice(finalists);
         }
 
         function finish() {
