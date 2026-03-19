@@ -1,9 +1,16 @@
+import streamlit as st
+import streamlit.components.v1 as components
+
+# Configuration de la page Streamlit
+st.set_page_config(page_title="FRONTIER SCAN", layout="centered")
+
+# On définit le code HTML/JS à l'intérieur d'une variable Python
+frontier_html = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FRONTIER SCAN v1.0</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -12,12 +19,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             margin: 0;
-            overflow: hidden;
+            padding: 20px;
         }
         #app-container {
-            width: 90%;
+            width: 100%;
             max-width: 450px;
             background: #1b2838;
             padding: 30px;
@@ -41,7 +47,7 @@
             transition: 0.3s;
         }
         .btn-option:hover { background: #00d2ff; color: #0e1621; box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); }
-        .result-card { display: none; animation: fadeIn 0.5s ease-in; }
+        .result-card { display: none; }
         .photo-frame {
             width: 160px;
             height: 160px;
@@ -57,6 +63,7 @@
             display: none;
             position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
             background-color: #d93025;
             color: white;
@@ -66,7 +73,6 @@
             z-index: 1000;
             font-size: 1.2rem;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -91,20 +97,18 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
     <script>
-        // ON UTILISE LE CHEMIN RELATIF VERS TON DOSSIER ET L'EXTENSION .PNG
-        const PATH = "MonScanner/"; 
+        // LIEN GITHUB POUR LES IMAGES
+        const PATH = "https://raw.githubusercontent.com/noutatoum/gdp-dashboard/main/MonScanner/"; 
 
         const PROFILS = {
             "Touriste": { status: "AUTORISÉ", color: "#42b72a", img: "touriste.png", note: "Voyageur standard. Visa en règle. Séjour temporaire validé." },
             "Hacker": { status: "DÉTENU", color: "#d93025", img: "hacker.png", note: "Tentative d'intrusion réseau détectée sur le portail sécurisé." },
             "Trafiquant": { status: "INTERPELLÉ", color: "#d93025", img: "trafiquant.png", note: "Marchandises illicites détectées via scanner thermique." },
             "Exile": { status: "EN ATTENTE", color: "#fabb3a", img: "exile.png", note: "Dossier de protection internationale en cours de vérification." },
-            "Ananas": { status: "DÉTRUIT", color: "#d93025", img: "ananas.png", note: "Bio-organisme non identifié. Risque de contamination environnementale." },
+            "Ananas": { status: "DÉTRUIT", color: "#d93025", img: "ananas.png", note: "Bio-organisme non identifié. Risque de contamination." },
             "Agent": { status: "VALIDE", color: "#42b72a", img: "agent.png", note: "Mission officielle diplomatique. Priorité de transit accordée." },
-            "Evasion": { status: "SIGNALÉ", color: "#fabb3a", img: "evasion.png", note: "Flux de capitaux suspects. Signalement transmis aux autorités fiscales." },
+            "Evasion": { status: "SIGNALÉ", color: "#fabb3a", img: "evasion.png", note: "Flux de capitaux suspects suspects." },
             "Artiste": { status: "AUTORISÉ", color: "#42b72a", img: "artiste.png", note: "Sujet créatif. Aucune menace identifiée." },
             "Chercheur": { status: "CONTRÔLÉ", color: "#1877f2", img: "chercheur.png", note: "Transport de matériel scientifique sous protocole strict." }
         };
@@ -149,12 +153,10 @@
 
             document.getElementById("status-display").innerText = res.status;
             document.getElementById("status-display").style.background = res.color;
-            // ON CHARGE L'IMAGE DEPUIS LE DOSSIER
             document.getElementById("result-photo").src = PATH + res.img;
             document.getElementById("result-profile").innerText = `PROFIL : ${gagnant.toUpperCase()}`;
             document.getElementById("result-note").innerText = res.note;
 
-            // EFFETS FINAUX
             if (["AUTORISÉ", "VALIDE"].includes(res.status)) {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             } else if (["DÉTENU", "INTERPELLÉ", "DÉTRUIT"].includes(res.status)) {
@@ -165,3 +167,7 @@
     </script>
 </body>
 </html>
+"""
+
+# Injection du code dans l'app Streamlit
+components.html(frontier_html, height=800, scrolling=False)
