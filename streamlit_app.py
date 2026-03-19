@@ -1,100 +1,167 @@
-import streamlit as st
-import random
-import time
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRONTIER SCAN v1.0</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0e1621;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #app-container {
+            width: 90%;
+            max-width: 450px;
+            background: #1b2838;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            border: 1px solid #30475e;
+            text-align: center;
+        }
+        h1 { color: #00d2ff; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-option {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: transparent;
+            color: #00d2ff;
+            border: 2px solid #00d2ff;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-option:hover { background: #00d2ff; color: #0e1621; box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); }
+        .result-card { display: none; animation: fadeIn 0.5s ease-in; }
+        .photo-frame {
+            width: 160px;
+            height: 160px;
+            border-radius: 20px;
+            border: 3px solid #00d2ff;
+            margin: 20px auto;
+            overflow: hidden;
+            background: #0e1621;
+        }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .status-badge { padding: 8px 20px; border-radius: 30px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+        #alert-banner {
+            display: none;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #d93025;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            z-index: 1000;
+            font-size: 1.2rem;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
 
-# --- 1. CONFIGURATION ---
-st.set_page_config(page_title="FRONTIER  SCAN", page_icon="🕵️‍♂️", layout="centered")
+    <div id="alert-banner">🚨 ALERTE : INDIVIDU SUSPECT DÉTECTÉ 🚨</div>
 
-# --- 2. BASE DE DONNÉES DES 9 PROFILS ---
-PROFILS = {
-    "Touriste": {"decision": "AUTORISÉ", "risk": "BAS", "color": "#42b72a", "image": "touriste.jpg", "note": "Voyageur standard. Visa valide."},
-    "Hacker": {"decision": "REFUSÉ / DÉTENU", "risk": "CRITIQUE", "color": "#d93025", "image": "hacker.jpg", "note": "Tentative d'intrusion réseau détectée."},
-    "Trafiquant": {"decision": "REFUSÉ / INTERPELLÉ", "risk": "ÉLEVÉ", "color": "#d93025", "image": "trafiquant.jpg", "note": "Contrebande suspectée via scanner THz."},
-    "Exilé": {"decision": "EN ATTENTE D'ASILE", "risk": "MODÉRÉ", "color": "#fabb3a", "image": "exile.jpg", "note": "Demande de protection internationale déposée."},
-    "Ananas": {"decision": "SAISI / DÉTRUIT", "risk": "BIO-RISQUE", "color": "#d93025", "image": "ananas.jpg", "note": "Organisme non identifié. Risque de contamination."},
-    "Agent": {"decision": "VALIDE (Diplomate)", "risk": "AUCUN", "color": "#42b72a", "image": "agent.jpg", "note": "Mission diplomatique officielle validée."},
-    "Evasion": {"decision": "SIGNALÉ AU FISC", "risk": "FINANCIER", "color": "#fabb3a", "image": "evasion.jpg", "note": "Flux de capitaux suspects non déclarés."},
-    "Artiste": {"decision": "AUTORISÉ", "risk": "BAS", "color": "#42b72a", "image": "artiste.jpg", "note": "Sujet créatif. Pas de menace détectée."},
-    "Chercheur": {"decision": "AUTORISÉ (Contrôlé)", "risk": "MODÉRÉ", "color": "#1877f2", "image": "chercheur.jpg", "note": "Transport d'échantillons scientifiques autorisés."}
-}
-
-# --- 3. LES 10 QUESTIONS ---
-QUESTIONS = [
-    ("Motif principal ?", [("Vacances", "Touriste"), ("Diplomatie", "Agent"), ("Optimisation", "Evasion"), ("Asile", "Exilé")]),
-    ("Contenu bagages ?", [("Vêtements", "Touriste"), ("Serveurs", "Hacker"), ("Bio-Scan", "Ananas"), ("Rien", "Exilé")]),
-    ("Ressources ?", [("Salaire", "Touriste"), ("Blockchain", "Hacker"), ("Offshore", "Evasion"), ("Néant", "Exilé")]),
-    ("Document ?", [("Passeport", "Touriste"), ("Mission", "Agent"), ("Déchiré", "Exilé"), ("Faux", "Trafiquant")]),
-    ("Appareils ?", [("Smartphone", "Touriste"), ("Laptop", "Hacker"), ("Brouilleur", "Trafiquant"), ("Échantillons", "Chercheur")]),
-    ("Réaction Scan ?", [("Calme", "Agent"), ("Sueur", "Trafiquant"), ("Mépris", "Evasion"), ("Silence", "Ananas")]),
-    ("Profession ?", [("Étudiant", "Touriste"), ("Expert Cyber", "Hacker"), ("Peintre", "Artiste"), ("Biologiste", "Chercheur")]),
-    ("Destination ?", [("Hôtel", "Touriste"), ("Banque", "Evasion"), ("Laboratoire", "Chercheur"), ("Camp", "Exilé")]),
-    ("Durée séjour ?", [("1 semaine", "Touriste"), ("Indéfini", "Exilé"), ("48h", "Agent"), ("24h", "Ananas")]),
-    ("Dernier Pays ?", [("Schengen", "Touriste"), ("Paradis Fiscal", "Evasion"), ("Zone Conflit", "Exilé"), ("Inconnu", "Ananas")])
-]
-
-# --- 4. INITIALISATION ---
-if 'step' not in st.session_state:
-    st.session_state.step = 0
-    st.session_state.scores = {k: 0 for k in PROFILS.keys()}
-    st.session_state.id_val = f"ID-{random.randint(10000, 99999)}"
-
-st.markdown("<h1 style='color: #00d2ff; text-align: center; text-transform: uppercase;'>⚡️ FRONTIER AI SCANNER ⚡️</h1>", unsafe_allow_html=True)
-
-if st.session_state.step < len(QUESTIONS):
-    # Barre de scan animée
-    st.progress(st.session_state.step / len(QUESTIONS))
-    q_text, options = QUESTIONS[st.session_state.step]
-    st.subheader(f"PROTOCOLE {st.session_state.step + 1} : {q_text}")
-    
-    # Design des boutons
-    for text, cat in options:
-        if st.button(text, key=text+str(st.session_state.step), use_container_width=True):
-            st.session_state.scores[cat] += 2
-            st.session_state.step += 1
-            st.rerun()
-else:
-    # --- RÉSULTAT FINAL ---
-    gagnant = max(st.session_state.scores, key=st.session_state.scores.get)
-    res = PROFILS[gagnant]
-    
-    # Effets de transition
-    with st.spinner('CALCUL DES DONNÉES BIOMÉTRIQUES...'):
-        time.sleep(1)
-
-    # Effets de succès ou d'alerte
-    if "AUTORISÉ" in res['decision'] or "VALIDE" in res['decision']:
-        st.snow()
-        st.success("🔓 ACCÈS ACCORDÉ")
-    elif "REFUSÉ" in res['decision'] or "DÉTENU" in res['decision']:
-        st.error(f"🚨 ALERTE : {res['decision']}")
-    else:
-        st.warning("⚠️ DOSSIER SOUS SURVEILLANCE")
-
-    # Carte ID Graphique
-    st.markdown(f"""
-        <div style="background: #1b2838; border-radius: 20px; padding: 25px; border: 2px solid {res['color']}; color: white;">
-            <div style="display: flex; justify-content: space-between; font-family: monospace;">
-                <span style="color: {res['color']};">● STATUS: {res['decision']}</span>
-                <span>{st.session_state.id_val}</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 20px; margin-top: 20px;">
-                <img src="{res['image']}" style="width: 140px; height: 140px; border-radius: 15px; border: 2px solid {res['color']}; object-fit: cover;">
-                <div>
-                    <h2 style="margin:0; color: #00d2ff;">SUJET IDENTIFIÉ</h2>
-                    <p style="color: {res['color']}; font-weight: bold; margin:0; font-size: 1.2rem;">{gagnant.upper()}</p>
-                    <p style="color: #84a1c0; font-size: 0.9rem; margin:0;">RISQUE : {res['risk']}</p>
-                </div>
-            </div>
-            <hr style="border: 0.1px solid #30475e; margin: 20px 0;">
-            <p style="font-size: 0.7rem; color: #84a1c0; text-transform: uppercase;">Analyse IA Terminal</p>
-            <p style="background: #0e1621; padding: 15px; border-radius: 10px; font-family: monospace; color: #42b72a; border-left: 5px solid {res['color']};">
-                > {res['note']}
-            </p>
+    <div id="app-container">
+        <div id="quiz-zone">
+            <h1>🛂 FRONTIER SCAN</h1>
+            <p id="question-text" style="color: #84a1c0; font-weight: bold; margin-bottom: 20px;"></p>
+            <div id="options-zone"></div>
         </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("NOUVELLE ANALYSE", use_container_width=True):
-        st.session_state.step = 0
-        st.session_state.scores = {k: 0 for k in PROFILS.keys()}
-        st.session_state.id_val = f"ID-{random.randint(10000, 99999)}"
-        st.rerun()
+
+        <div id="result-zone" class="result-card">
+            <div id="status-display" class="status-badge">ANALYSE TERMINÉE</div>
+            <div class="photo-frame">
+                <img id="result-photo" src="" alt="Profil">
+            </div>
+            <h2 id="result-profile" style="color: #00d2ff; margin: 5px 0;">PROFIL</h2>
+            <p id="result-note" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; font-style: italic; font-size: 0.9rem;"></p>
+            <button class="btn-option" onclick="location.reload()">NOUVELLE ANALYSE</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // ON UTILISE LE CHEMIN RELATIF VERS TON DOSSIER ET L'EXTENSION .PNG
+        const PATH = "MonScanner/"; 
+
+        const PROFILS = {
+            "Touriste": { status: "AUTORISÉ", color: "#42b72a", img: "touriste.png", note: "Voyageur standard. Visa en règle. Séjour temporaire validé." },
+            "Hacker": { status: "DÉTENU", color: "#d93025", img: "hacker.png", note: "Tentative d'intrusion réseau détectée sur le portail sécurisé." },
+            "Trafiquant": { status: "INTERPELLÉ", color: "#d93025", img: "trafiquant.png", note: "Marchandises illicites détectées via scanner thermique." },
+            "Exile": { status: "EN ATTENTE", color: "#fabb3a", img: "exile.png", note: "Dossier de protection internationale en cours de vérification." },
+            "Ananas": { status: "DÉTRUIT", color: "#d93025", img: "ananas.png", note: "Bio-organisme non identifié. Risque de contamination environnementale." },
+            "Agent": { status: "VALIDE", color: "#42b72a", img: "agent.png", note: "Mission officielle diplomatique. Priorité de transit accordée." },
+            "Evasion": { status: "SIGNALÉ", color: "#fabb3a", img: "evasion.png", note: "Flux de capitaux suspects. Signalement transmis aux autorités fiscales." },
+            "Artiste": { status: "AUTORISÉ", color: "#42b72a", img: "artiste.png", note: "Sujet créatif. Aucune menace identifiée." },
+            "Chercheur": { status: "CONTRÔLÉ", color: "#1877f2", img: "chercheur.png", note: "Transport de matériel scientifique sous protocole strict." }
+        };
+
+        const QUESTIONS = [
+            { q: "Motif de passage ?", options: [["Vacances", "Touriste"], ["Aide", "Agent"], ["Optimisation", "Evasion"], ["Asile", "Exile"]] },
+            { q: "Contenu des bagages ?", options: [["Vêtements", "Touriste"], ["Serveurs", "Hacker"], ["Bio-Scan", "Ananas"], ["Rien", "Exile"]] },
+            { q: "Ressources ?", options: [["Salaire", "Touriste"], ["Crypto", "Hacker"], ["Offshore", "Evasion"], ["Néant", "Exile"]] },
+            { q: "Document ?", options: [["Passeport", "Touriste"], ["Diplomatique", "Agent"], ["Déchiré", "Exile"], ["Faux", "Trafiquant"]] },
+            { q: "Appareils ?", options: [["Smartphone", "Touriste"], ["Laptop", "Hacker"], ["Brouilleur", "Trafiquant"], ["Éprouvettes", "Chercheur"]] },
+            { q: "Réaction ?", options: [["Calme", "Agent"], ["Sueur", "Trafiquant"], ["Mépris", "Evasion"], ["Silence", "Ananas"]] },
+            { q: "Profession ?", options: [["Étudiant", "Touriste"], ["Expert Cyber", "Hacker"], ["Peintre", "Artiste"], ["Biologiste", "Chercheur"]] },
+            { q: "Destination ?", options: [["Hôtel", "Touriste"], ["Banque", "Evasion"], ["Laboratoire", "Chercheur"], ["Zone B", "Exile"]] },
+            { q: "Durée ?", options: [["1 semaine", "Touriste"], ["Indéfini", "Exile"], ["48h", "Agent"], ["24h", "Ananas"]] },
+            { q: "Dernier Pays ?", options: [["Schengen", "Touriste"], ["Paradis Fiscal", "Evasion"], ["Zone Conflit", "Exile"], ["Inconnu", "Ananas"]] }
+        ];
+
+        let step = 0;
+        let scores = { "Touriste":0, "Hacker":0, "Trafiquant":0, "Exile":0, "Ananas":0, "Agent":0, "Evasion":0, "Artiste":0, "Chercheur":0 };
+
+        function showQuestion() {
+            if (step < QUESTIONS.length) {
+                const current = QUESTIONS[step];
+                document.getElementById("question-text").innerText = `SCAN ${step + 1}/10 : ${current.q}`;
+                const zone = document.getElementById("options-zone");
+                zone.innerHTML = "";
+                current.options.forEach(opt => {
+                    const btn = document.createElement("button");
+                    btn.className = "btn-option";
+                    btn.innerText = opt[0];
+                    btn.onclick = () => { scores[opt[1]]++; step++; showQuestion(); };
+                    zone.appendChild(btn);
+                });
+            } else { showResult(); }
+        }
+
+        function showResult() {
+            document.getElementById("quiz-zone").style.display = "none";
+            document.getElementById("result-zone").style.display = "block";
+            const gagnant = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            const res = PROFILS[gagnant];
+
+            document.getElementById("status-display").innerText = res.status;
+            document.getElementById("status-display").style.background = res.color;
+            // ON CHARGE L'IMAGE DEPUIS LE DOSSIER
+            document.getElementById("result-photo").src = PATH + res.img;
+            document.getElementById("result-profile").innerText = `PROFIL : ${gagnant.toUpperCase()}`;
+            document.getElementById("result-note").innerText = res.note;
+
+            // EFFETS FINAUX
+            if (["AUTORISÉ", "VALIDE"].includes(res.status)) {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            } else if (["DÉTENU", "INTERPELLÉ", "DÉTRUIT"].includes(res.status)) {
+                document.getElementById("alert-banner").style.display = "block";
+            }
+        }
+        showQuestion();
+    </script>
+</body>
+</html>
