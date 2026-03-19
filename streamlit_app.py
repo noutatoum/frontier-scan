@@ -3,7 +3,7 @@ import random
 import time
 
 # --- 1. CONFIGURATION ---
-st.set_page_config(page_title="FRONTIER AI SCAN", page_icon="🕵️‍♂️", layout="centered")
+st.set_page_config(page_title="FRONTIER  SCAN", page_icon="🕵️‍♂️", layout="centered")
 
 # --- 2. BASE DE DONNÉES DES 9 PROFILS ---
 PROFILS = {
